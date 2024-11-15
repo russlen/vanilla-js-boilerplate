@@ -1,162 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Telegram Mini Apps Vanilla JS Sample App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlipEarn RPG</title>
     <style>
-        body {
-            --bg-color: var(--tg-theme-bg-color);
-            font: 12px/18px "Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--tg-theme-text-color);
-            margin: 48px 24px;
+        /* General Reset */
+        * {
+            margin: 0;
             padding: 0;
-            color-scheme: var(--tg-color-scheme);
+            box-sizing: border-box;
         }
 
-        a {
-            color: var(--tg-theme-link-color);
-        }
-        #viewport {
-            position: fixed;
-            left: 0;
-            right: 0;
-            top: 0;
-            height: var(--tg-viewport-stable-height, 100vh);
-            pointer-events: none;
-            transition: all .2s ease;
-        }
-        #viewport:after {
-            content: '';
-            display: block;
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            border-width: 4px;
-            border-style: solid;
-            border-image: linear-gradient(45deg, rgba(64, 224, 208, .5), rgba(173, 255, 47, .5)) 1;
+        /* Body Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #6b73ff, #000dff);
+            color: #fff;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
         }
 
-        #viewport-params-size,
-        #viewport-params-expand {
-            content: attr(text);
+        /* Header Styling */
+        .header {
+            padding: 20px;
+            background: #000dff;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .title {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            font-weight: 300;
+            color: #e0e0e0;
+        }
+
+        /* Main Content Styling */
+        .main-content {
+            padding: 20px;
+            max-width: 800px;
+        }
+
+        .features {
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .features h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .features ul {
+            list-style: none;
+        }
+
+        .features li {
+            margin: 10px 0;
+            text-align: left;
+            padding-left: 10px;
+            position: relative;
+        }
+
+        .features li::before {
+            content: '•';
+            color: #ffd700;
+            font-size: 1.2rem;
             position: absolute;
-            display: inline-block;
-            background: var(--tg-theme-link-color, rgb(64, 224, 208));
-            right: 4px;
-            left: auto;
-            font-size: 8px;
-            padding: 4px;
-            vertical-align: top;
+            left: 0;
         }
-        #viewport-params-size {
-            top: 4px;
+
+        /* Call to Action */
+        .cta {
+            background: #ffd700;
+            color: #000dff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
-        #viewport-params-expand {
-            top: 30px;
+
+        .cta h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .cta p {
+            margin-bottom: 20px;
+        }
+
+        .cta-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            color: #fff;
+            background: #000dff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background: #6b73ff;
+            transform: scale(1.05);
+        }
+
+        /* Footer Styling */
+        .footer {
+            padding: 10px 20px;
+            background: #000dff;
+            width: 100%;
+            margin-top: auto;
+            font-size: 0.9rem;
+            color: #e0e0e0;
         }
     </style>
 </head>
-
 <body>
-    <main>
-        <div align="center">
-            <a href="https://ton.org/"><img width="48" src="./assets/tapps.png" alt="logo of telegram web apps"></a>
-        </div>
-        <h1>Modals</h1>
-        <button onclick="Telegram.WebApp.showAlert('Hello World!');">Launch Alert</button>
-        <button onclick="showPopup();">Launch Popup</button>
+    <header class="header">
+        <h1 class="title">FlipEarn RPG</h1>
+        <p class="tagline">Learn, Battle, and Earn in the Ultimate Flashcard RPG!</p>
+    </header>
 
-        <h1>Links</h1>
-        <ul>
-            <li>
-                <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/trendingapps');">Open link within Telegram</a>
-            </li>
-            <li>
-                <a href="javascript:Telegram.WebApp.openLink('https://ton.org/');">Open link in external browser</a>
-            </li>
-            <li>
-                <a href="javascript:Telegram.WebApp.openLink('https://telegra.ph/api',{try_instant_view:true});">Open link inside Telegram webview</a>
-            </li>
-        </ul>
+    <main class="main-content">
+        <section class="features">
+            <h2>Game Features</h2>
+            <ul>
+                <li>Create a unique character and explore themed worlds.</li>
+                <li>Answer flashcards to defeat enemies with critical hits.</li>
+                <li>Earn real-world rewards by accumulating points.</li>
+                <li>Complete quests for bonuses and exclusive upgrades.</li>
+                <li>Use TON integration for secure payouts.</li>
+            </ul>
+        </section>
 
-        <h1>Buttons</h1>
-        <button onclick="Telegram.WebApp.expand();">Expand Webview</button>
-        <button onclick="toggleMainButton();">Toggle Main Button</button>
+        <section class="cta">
+            <h2>Ready to Begin?</h2>
+            <p>Sign up now and start your journey in FlipEarn RPG!</p>
+            <button class="cta-button">Get Started</button>
+        </section>
     </main>
-    <div id="viewport"></div>
-    <div id="viewport-params-size"></div>
-    <div id="viewport-params-expand"></div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        // Init TWA
-        Telegram.WebApp.ready();
 
-        // Event occurs whenever theme settings are changed in the user's Telegram app (including switching to night mode).
-        Telegram.WebApp.onEvent('themeChanged', function() {
-            document.documentElement.className = Telegram.WebApp.colorScheme;
-        });
-
-        // Show main button
-        Telegram.WebApp.MainButton.setParams({
-            text: 'Main Button'
-        });
-        Telegram.WebApp.MainButton.onClick(function () {
-            Telegram.WebApp.showAlert('Main Button was clicked')
-        });	
-        Telegram.WebApp.MainButton.show();
-
-        // Function to call showPopup API
-        function showPopup() {
-            Telegram.WebApp.showPopup({
-                title: 'Title',
-                message: 'Some message',
-                buttons: [
-                    {id: 'link', type: 'default', text: 'Open ton.org'},
-                    {type: 'cancel'},
-                ]
-            }, function(btn) {
-                if (btn === 'link') {
-                    Telegram.WebApp.openLink('https://ton.org/');
-                }
-            });
-        };
-
-        // Function to toggle main TWA button
-        function toggleMainButton() {
-            if (Telegram.WebApp.MainButton.isVisible) {
-                Telegram.WebApp.MainButton.hide();
-            } else {
-                Telegram.WebApp.MainButton.show();
-            }
-        };
-
-        function setViewportData() {
-            var sizeEl = document.getElementById('viewport-params-size');
-            sizeEl.innerText = 'width: ' + window.innerWidth + ' x ' + 
-                'height: ' + Telegram.WebApp.viewportStableHeight;
-
-            var expandEl = document.querySelector('#viewport-params-expand');
-            expandEl.innerText = 'Is Expanded: ' + (Telegram.WebApp.isExpanded ? 'true' : 'false');
-        }
-
-        Telegram.WebApp.setHeaderColor('secondary_bg_color');
-
-        setViewportData();
-        Telegram.WebApp.onEvent('viewportChanged', setViewportData);
-
-        Telegram.WebApp.onEvent('themeChanged', function() {
-            document.body.setAttribute('style', '--bg-color:' + Telegram.WebApp.backgroundColor);
-        });
-
-    </script>
-
-    <!-- Eruda is console for mobile browsers -->
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-    <script>eruda.init();</script>
+    <footer class="footer">
+        <p>© 2024 FlipEarn RPG. All rights reserved.</p>
+    </footer>
 </body>
 </html>
