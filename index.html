@@ -1,162 +1,199 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Telegram Mini Apps Vanilla JS Sample App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Game</title>
     <style>
         body {
-            --bg-color: var(--tg-theme-bg-color);
-            font: 12px/18px "Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--tg-theme-text-color);
-            margin: 48px 24px;
+            font-family: Arial, sans-serif;
+            margin: 0;
             padding: 0;
-            color-scheme: var(--tg-color-scheme);
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
-
-        a {
-            color: var(--tg-theme-link-color);
+        #app {
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        #viewport {
-            position: fixed;
-            left: 0;
-            right: 0;
-            top: 0;
-            height: var(--tg-viewport-stable-height, 100vh);
-            pointer-events: none;
-            transition: all .2s ease;
+        h1 {
+            text-align: center;
         }
-        #viewport:after {
-            content: '';
-            display: block;
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            border-width: 4px;
-            border-style: solid;
-            border-image: linear-gradient(45deg, rgba(64, 224, 208, .5), rgba(173, 255, 47, .5)) 1;
+        .deck, .monster {
+            margin: 10px 0;
         }
-
-        #viewport-params-size,
-        #viewport-params-expand {
-            content: attr(text);
-            position: absolute;
-            display: inline-block;
-            background: var(--tg-theme-link-color, rgb(64, 224, 208));
-            right: 4px;
-            left: auto;
-            font-size: 8px;
-            padding: 4px;
-            vertical-align: top;
+        .deck button, .monster button {
+            margin-left: 10px;
         }
-        #viewport-params-size {
-            top: 4px;
+        #study-section, #create-card-section {
+            display: none;
         }
-        #viewport-params-expand {
-            top: 30px;
+        .monster {
+            background: #ffebcc;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .monster-health {
+            margin: 10px 0;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 100%;
+        }
+        button {
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
-
 <body>
-    <main>
-        <div align="center">
-            <a href="https://ton.org/"><img width="48" src="./assets/tapps.png" alt="logo of telegram web apps"></a>
+    <div id="app">
+        <h1>Flashcard Monster Game</h1>
+        <div id="menu-section">
+            <input type="text" id="deck-name" placeholder="Enter deck name">
+            <button onclick="createDeck()">Create Deck</button>
+            <div id="deck-list"></div>
         </div>
-        <h1>Modals</h1>
-        <button onclick="Telegram.WebApp.showAlert('Hello World!');">Launch Alert</button>
-        <button onclick="showPopup();">Launch Popup</button>
-
-        <h1>Links</h1>
-        <ul>
-            <li>
-                <a href="javascript:Telegram.WebApp.openTelegramLink('https://t.me/trendingapps');">Open link within Telegram</a>
-            </li>
-            <li>
-                <a href="javascript:Telegram.WebApp.openLink('https://ton.org/');">Open link in external browser</a>
-            </li>
-            <li>
-                <a href="javascript:Telegram.WebApp.openLink('https://telegra.ph/api',{try_instant_view:true});">Open link inside Telegram webview</a>
-            </li>
-        </ul>
-
-        <h1>Buttons</h1>
-        <button onclick="Telegram.WebApp.expand();">Expand Webview</button>
-        <button onclick="toggleMainButton();">Toggle Main Button</button>
-    </main>
-    <div id="viewport"></div>
-    <div id="viewport-params-size"></div>
-    <div id="viewport-params-expand"></div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+        <div id="create-card-section">
+            <h2 id="current-deck-title">Add Cards to Deck</h2>
+            <input type="text" id="card-question" placeholder="Enter question">
+            <input type="text" id="card-answer" placeholder="Enter answer">
+            <button onclick="addCard()">Add Card</button>
+            <button onclick="goToMenu()">Back to Menu</button>
+        </div>
+        <div id="study-section">
+            <div class="monster">
+                <h2 id="monster-question">Monster appears with a question!</h2>
+                <p class="monster-health">Health: <span id="monster-health">100</span></p>
+            </div>
+            <input type="text" id="user-answer" placeholder="Enter your answer">
+            <button onclick="submitAnswer()">Submit</button>
+            <button onclick="endStudy()">End Study</button>
+        </div>
+    </div>
     <script>
-        // Init TWA
-        Telegram.WebApp.ready();
+        let decks = {};
+        let currentDeck = null;
+        let currentCardIndex = 0;
+        let monsterHealth = 100;
 
-        // Event occurs whenever theme settings are changed in the user's Telegram app (including switching to night mode).
-        Telegram.WebApp.onEvent('themeChanged', function() {
-            document.documentElement.className = Telegram.WebApp.colorScheme;
-        });
-
-        // Show main button
-        Telegram.WebApp.MainButton.setParams({
-            text: 'Main Button'
-        });
-        Telegram.WebApp.MainButton.onClick(function () {
-            Telegram.WebApp.showAlert('Main Button was clicked')
-        });	
-        Telegram.WebApp.MainButton.show();
-
-        // Function to call showPopup API
-        function showPopup() {
-            Telegram.WebApp.showPopup({
-                title: 'Title',
-                message: 'Some message',
-                buttons: [
-                    {id: 'link', type: 'default', text: 'Open ton.org'},
-                    {type: 'cancel'},
-                ]
-            }, function(btn) {
-                if (btn === 'link') {
-                    Telegram.WebApp.openLink('https://ton.org/');
-                }
-            });
-        };
-
-        // Function to toggle main TWA button
-        function toggleMainButton() {
-            if (Telegram.WebApp.MainButton.isVisible) {
-                Telegram.WebApp.MainButton.hide();
+        function createDeck() {
+            const deckName = document.getElementById("deck-name").value.trim();
+            if (deckName && !decks[deckName]) {
+                decks[deckName] = [];
+                updateDeckList();
+                document.getElementById("deck-name").value = "";
             } else {
-                Telegram.WebApp.MainButton.show();
+                alert("Deck name is required or already exists.");
             }
-        };
-
-        function setViewportData() {
-            var sizeEl = document.getElementById('viewport-params-size');
-            sizeEl.innerText = 'width: ' + window.innerWidth + ' x ' + 
-                'height: ' + Telegram.WebApp.viewportStableHeight;
-
-            var expandEl = document.querySelector('#viewport-params-expand');
-            expandEl.innerText = 'Is Expanded: ' + (Telegram.WebApp.isExpanded ? 'true' : 'false');
         }
 
-        Telegram.WebApp.setHeaderColor('secondary_bg_color');
+        function updateDeckList() {
+            const deckList = document.getElementById("deck-list");
+            deckList.innerHTML = "";
+            for (let deck in decks) {
+                const div = document.createElement("div");
+                div.className = "deck";
+                div.innerHTML = `<span>${deck}</span> 
+                                <button onclick="startAddingCards('${deck}')">Add Cards</button>
+                                <button onclick="startStudy('${deck}')">Study</button>`;
+                deckList.appendChild(div);
+            }
+        }
 
-        setViewportData();
-        Telegram.WebApp.onEvent('viewportChanged', setViewportData);
+        function startAddingCards(deckName) {
+            currentDeck = deckName;
+            document.getElementById("menu-section").style.display = "none";
+            document.getElementById("create-card-section").style.display = "block";
+            document.getElementById("current-deck-title").textContent = `Add Cards to Deck: ${deckName}`;
+        }
 
-        Telegram.WebApp.onEvent('themeChanged', function() {
-            document.body.setAttribute('style', '--bg-color:' + Telegram.WebApp.backgroundColor);
-        });
+        function addCard() {
+            const question = document.getElementById("card-question").value.trim();
+            const answer = document.getElementById("card-answer").value.trim();
+            if (question && answer) {
+                decks[currentDeck].push({ question, answer });
+                document.getElementById("card-question").value = "";
+                document.getElementById("card-answer").value = "";
+            } else {
+                alert("Both question and answer are required.");
+            }
+        }
 
+        function goToMenu() {
+            document.getElementById("create-card-section").style.display = "none";
+            document.getElementById("menu-section").style.display = "block";
+        }
+
+        function startStudy(deckName) {
+            if (decks[deckName].length === 0) {
+                alert("Deck is empty. Add cards first.");
+                return;
+            }
+            currentDeck = deckName;
+            currentCardIndex = 0;
+            monsterHealth = 100;
+            updateMonsterHealth();
+            showMonsterQuestion();
+            document.getElementById("menu-section").style.display = "none";
+            document.getElementById("study-section").style.display = "block";
+        }
+
+        function showMonsterQuestion() {
+            const currentCard = decks[currentDeck][currentCardIndex];
+            document.getElementById("monster-question").textContent = currentCard.question;
+        }
+
+        function updateMonsterHealth() {
+            document.getElementById("monster-health").textContent = monsterHealth;
+        }
+
+        function submitAnswer() {
+            const userAnswer = document.getElementById("user-answer").value.trim().toLowerCase();
+            const correctAnswer = decks[currentDeck][currentCardIndex].answer.toLowerCase();
+
+            if (userAnswer === correctAnswer) {
+                monsterHealth -= 20;
+                if (monsterHealth <= 0) {
+                    monsterHealth = 0;
+                    alert("You defeated the monster! Moving to the next card.");
+                    currentCardIndex++;
+                    if (currentCardIndex >= decks[currentDeck].length) {
+                        alert("You've completed the deck!");
+                        endStudy();
+                        return;
+                    }
+                    monsterHealth = 100;
+                }
+                updateMonsterHealth();
+                showMonsterQuestion();
+            } else {
+                alert("Wrong answer! Try again.");
+            }
+            document.getElementById("user-answer").value = "";
+        }
+
+        function endStudy() {
+            document.getElementById("study-section").style.display = "none";
+            document.getElementById("menu-section").style.display = "block";
+        }
     </script>
-
-    <!-- Eruda is console for mobile browsers -->
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-    <script>eruda.init();</script>
 </body>
 </html>
