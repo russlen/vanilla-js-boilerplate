@@ -6,61 +6,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flashcard Game</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        #app {
-            max-width: 600px;
-            padding: 20px;
-            border-radius: 8px;
-            background: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-        }
-        .deck, .monster {
-            margin: 10px 0;
-        }
-        .deck button, .monster button {
-            margin-left: 10px;
-        }
-        #study-section, #create-card-section {
-            display: none;
-        }
-        .monster {
-            background: #ffebcc;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .monster-health {
-            margin: 10px 0;
-        }
-        input, button {
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            width: 100%;
-        }
-        button {
-            cursor: pointer;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #614b13; 
+    background-image: url('mini_app_bg.avif');
+    background-size: 200% 200%; 
+    background-position: 0 0; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    animation: moveBackground 30s ease-in-out infinite; 
+}
+@keyframes moveBackground {
+    0% {
+        background-position: 0% 0%; 
+    }
+    50% {
+        background-position: 100% 100%; 
+    }
+    100% {
+        background-position: 0% 0%; 
+    }
+}
+@font-face {
+    font-family: 'Bookworm Deluxe';
+    src: url('sample_app/bookworm.zip') format('truetype'); 
+
+}
+#app {
+    max-width: 600px;
+    padding: 20px;
+    border-radius: 20px;
+    background: linear-gradient(rgba(255, 255, 255, 0.7)); 
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+}
+
+h1 {
+    font-family: 'Bookworm Deluxe', cursive;
+    font-size: 3em;
+    background:     #BF964B; 
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; 
+}
+
+.deck, .monster {
+    margin: 15px 0;
+}
+
+.deck button, .monster button {
+    margin-left: 15px;
+}
+
+#study-section, #create-card-section {
+    display: none;
+}
+
+.monster {
+    background: #bebdbb;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    width: 100%;
+}
+
+.monster-health {
+    margin: 10px 0;
+}
+
+input, button {
+    padding: 20px;
+    margin: 10px 5px;
+    border-radius: 20px;
+    border: none;
+    outline: none;
+    width: 100%;
+    max-width: 1000px;
+    text-align:center;
+    font-family: 'Bookworm Deluxe', cursive;
+    font-size: 1em;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+button {
+    cursor: pointer;
+    background-color: #594534;
+    color: #F2EFEB;
+    border: none;
+}
+
+button:hover {
+    background-color: #8C6B4F;
+}
+
+input::placeholder {
+    color: rgb(90, 77, 17); 
+    font-style: italic; 
+    opacity: 1; 
+}
     </style>
 </head>
 <body>
